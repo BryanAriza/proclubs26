@@ -2,7 +2,7 @@
   "name": "@proclubs/api",
   "version": "1.0.0",
   "scripts": {
-    "build": "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "dev": "dotenv -e ../../.env -- ts-node -r tsconfig-paths/register src/main.ts",
     "start": "node dist/main.js",
     "start:dev": "nest start --watch",
