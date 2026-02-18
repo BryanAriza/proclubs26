@@ -11,6 +11,7 @@ import { platformLabel, type Platform } from '@proclubs/shared';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import AdBanner from './ad-banner';
 
 // Componente para manejar el crest con fallbacks automáticos
 function ClubCrest({ 
@@ -210,6 +211,20 @@ export function SearchPage() {
             <Users className="inline mr-2 w-6 h-6 text-blue-500/70" />
             Rastrea las estadísticas de tu Pro Club
           </motion.p>
+        </motion.div>
+
+        {/* Anuncio Banner Superior */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <AdBanner 
+            dataAdSlot="1111111111" 
+            dataAdFormat="horizontal"
+            className="flex justify-center"
+          />
         </motion.div>
 
         <motion.div

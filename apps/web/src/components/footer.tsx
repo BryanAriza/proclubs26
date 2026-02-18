@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 export function Footer() {
@@ -19,10 +20,16 @@ export function Footer() {
             <p className="text-xs text-slate-600">
               © {new Date().getFullYear()} · Este contenido no está licenciado
             </p>
-            <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
+            <div className="flex items-center justify-center gap-3 text-xs text-slate-500 flex-wrap">
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
               <span>EA SPORTS FC 26 Pro Clubs Tracker</span>
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
+              <Link 
+                href="/privacy" 
+                className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              >
+                Política de Privacidad
+              </Link>
             </div>
           </div>
         </div>

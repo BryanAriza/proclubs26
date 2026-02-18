@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Separator } from './ui/separator';
 import { PlayersTable } from './players-table';
 import { MatchesList } from './matches-list';
+import AdBanner from './ad-banner';
 
 interface ClubPageProps {
   platform: string;
@@ -287,6 +288,20 @@ export function ClubPage({ platform, clubId }: ClubPageProps) {
               </motion.div>
             </CardContent>
           </Card>
+        </motion.div>
+
+        {/* Anuncio Banner Superior */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="my-6"
+        >
+          <AdBanner 
+            dataAdSlot="1234567890" 
+            dataAdFormat="horizontal"
+            className="flex justify-center"
+          />
         </motion.div>
 
         <motion.div
@@ -615,6 +630,19 @@ export function ClubPage({ platform, clubId }: ClubPageProps) {
             <MatchesList platform={plat} clubId={clubId} />
           </TabsContent>
         </Tabs>
+        </motion.div>
+
+        {/* Anuncio Banner Inferior */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-8 mb-6"
+        >
+          <AdBanner 
+            dataAdSlot="5555555555" 
+            dataAdFormat="horizontal"
+            className="flex justify-center"
+          />
         </motion.div>
       </div>
     </div>
