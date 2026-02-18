@@ -221,7 +221,7 @@ export function SearchPage() {
           className="mb-8"
         >
           <AdBanner 
-            dataAdSlot="1111111111" 
+            dataAdSlot="2093958364" 
             dataAdFormat="horizontal"
             className="flex justify-center"
           />

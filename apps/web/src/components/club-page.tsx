@@ -298,7 +298,7 @@ export function ClubPage({ platform, clubId }: ClubPageProps) {
           className="my-6"
         >
           <AdBanner 
-            dataAdSlot="1234567890" 
+            dataAdSlot="3000670339" 
             dataAdFormat="horizontal"
             className="flex justify-center"
           />
