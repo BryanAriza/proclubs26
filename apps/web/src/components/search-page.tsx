@@ -221,7 +221,7 @@ export function SearchPage() {
           className="mb-8"
         >
           <AdBanner 
-            dataAdSlot="2093958364" 
+            dataAdSlot="1111111111" 
             dataAdFormat="horizontal"
             className="flex justify-center"
           />
@@ -426,6 +426,141 @@ export function SearchPage() {
               </motion.div>
             )}
         </AnimatePresence>
+
+        {/* Sección informativa solo cuando no hay búsqueda activa */}
+        {debouncedSearch.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 space-y-8"
+          >
+            {/* ¿Qué es ProClubs Stats? */}
+            <Card className="shadow-lg border border-slate-200/50 bg-white/70 backdrop-blur-md">
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
+              <CardHeader>
+                <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                  <Trophy className="w-7 h-7 text-blue-600" />
+                  ¿Qué es ProClubs Stats?
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-slate-600 leading-relaxed">
+                <p>
+                  <strong>ProClubs Stats</strong> es tu herramienta definitiva para analizar y rastrear 
+                  el rendimiento de clubes en <strong>EA SPORTS FC 26 Pro Clubs</strong>. Conectamos 
+                  directamente con la API oficial de EA Sports para traerte estadísticas actualizadas 
+                  en tiempo real de cualquier club, sin importar la plataforma que uses.
+                </p>
+                <p>
+                  Nuestra plataforma está diseñada con pasión por jugadores para jugadores, ofreciendo 
+                  una experiencia intuitiva, rápida y completamente gratuita. Consulta estadísticas 
+                  detalladas de clubes, analiza el rendimiento de jugadores individuales y revisa el 
+                  historial completo de partidos con solo buscar el nombre de tu club.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Características principales */}
+            <Card className="shadow-lg border border-slate-200/50 bg-white/70 backdrop-blur-md">
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
+              <CardHeader>
+                <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                  <Users className="w-7 h-7 text-blue-600" />
+                  Características Destacadas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200">
+                    <div className="text-3xl mb-3">📊</div>
+                    <h3 className="font-bold text-slate-800 mb-2">Estadísticas Completas</h3>
+                    <p className="text-sm text-slate-600">
+                      División actual, récord de victorias, derrotas y empates, goles a favor y en contra, 
+                      y estadísticas de rendimiento de cada jugador.
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200">
+                    <div className="text-3xl mb-3">🏆</div>
+                    <h3 className="font-bold text-slate-800 mb-2">Historial de Partidos</h3>
+                    <p className="text-sm text-slate-600">
+                      Revisa el historial completo de partidos de tu club con detalles de cada encuentro, 
+                      incluyendo goles, asistencias y rendimiento individual.
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200">
+                    <div className="text-3xl mb-3">⚡</div>
+                    <h3 className="font-bold text-slate-800 mb-2">100% Gratuito</h3>
+                    <p className="text-sm text-slate-600">
+                      Sin registro, sin suscripciones, sin costos ocultos. Acceso completo a todas las 
+                      funcionalidades de forma totalmente gratuita.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Cómo funciona */}
+            <Card className="shadow-lg border border-slate-200/50 bg-white/70 backdrop-blur-md">
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
+              <CardHeader>
+                <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                  <Search className="w-7 h-7 text-blue-600" />
+                  Cómo Usar ProClubs Stats
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-start">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                      1
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-800 mb-1">Selecciona tu Plataforma</h3>
+                      <p className="text-sm text-slate-600">
+                        Elige entre PlayStation 5/Xbox Series X|S (Current Gen), PlayStation 4/Xbox One 
+                        (Last Gen) o Nintendo Switch según donde juegues.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                      2
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-800 mb-1">Busca tu Club</h3>
+                      <p className="text-sm text-slate-600">
+                        Escribe el nombre de tu club en el buscador. Los resultados aparecerán automáticamente 
+                        mientras escribes.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                      3
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-800 mb-1">Analiza las Estadísticas</h3>
+                      <p className="text-sm text-slate-600">
+                        Haz clic en tu club para ver estadísticas detalladas, ranking de jugadores, historial 
+                        de partidos y mucho más.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Disclaimer */}
+            <div className="bg-slate-50 border border-slate-200 p-6 rounded-xl text-sm text-slate-600 leading-relaxed text-center">
+              <p>
+                <strong>Nota:</strong> ProClubs Stats es un proyecto independiente de la comunidad 
+                y <strong>NO está afiliado con Electronic Arts Inc. o EA Sports.</strong> EA SPORTS FC 
+                y Pro Clubs son marcas registradas de Electronic Arts Inc. Todos los datos mostrados 
+                provienen de la API pública de EA Sports.
+              </p>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

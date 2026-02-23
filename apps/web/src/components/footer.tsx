@@ -18,26 +18,33 @@ export function Footer() {
               Creado por <span className="bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">BryanTech</span>
             </p>
             <p className="text-xs text-slate-600">
-              © {new Date().getFullYear()} · Este contenido no está licenciado
+              © {new Date().getFullYear()} ProClubs Stats · Proyecto comunitario independiente
             </p>
             <div className="flex items-center justify-center gap-3 text-xs text-slate-500 flex-wrap">
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
-              <span>EA SPORTS FC 26 Pro Clubs Tracker</span>
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
+              <Link 
+                href="/about" 
+                className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              >
+                Acerca de
+              </Link>
+              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+              <Link 
+                href="/contact" 
+                className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              >
+                Contacto
+              </Link>
+              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
               <Link 
                 href="/privacy" 
                 className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
               >
-                Política de Privacidad
-              </Link>
-              <span>•</span>
-              <Link 
-                href="/terms" 
-                className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-              >
-                Términos y Condiciones
+                Privacidad
               </Link>
             </div>
+            <p className="text-xs text-slate-400 pt-2">
+              No afiliado con EA Sports · Datos de API pública
+            </p>
           </div>
         </div>
       </div>

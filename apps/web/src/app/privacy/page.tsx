@@ -7,7 +7,7 @@ export default function PrivacyPage() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4 text-slate-800">1. Información General</h2>
           <p className="mb-4 text-slate-600 leading-relaxed">
-            Esta aplicación muestra estadísticas públicas de clubes de EA SPORTS FC 25 Pro Clubs.
+            Esta aplicación muestra estadísticas públicas de clubes de EA SPORTS FC 26 Pro Clubs.
             Nos comprometemos a proteger tu privacidad y a ser transparentes sobre cómo utilizamos
             la información.
           </p>
@@ -116,7 +116,21 @@ export default function PrivacyPage() {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-slate-800">9. Contacto</h2>
+          <h2 className="text-2xl font-bold mb-4 text-slate-800">9. Descargo de Responsabilidad</h2>
+          <p className="text-slate-600 leading-relaxed mb-4">
+            ProClubs Stats es un proyecto independiente de la comunidad y <strong>NO está afiliado, 
+            asociado, autorizado, respaldado por, o de ninguna manera oficialmente conectado con 
+            Electronic Arts Inc., EA Sports, o cualquiera de sus subsidiarias o afiliadas.</strong>
+          </p>
+          <p className="text-slate-600 leading-relaxed">
+            Los nombres oficiales EA SPORTS FC, Pro Clubs, y todos los logos relacionados son marcas 
+            registradas de Electronic Arts Inc. Todos los datos mostrados provienen de la API pública 
+            de EA Sports y son de dominio público.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-slate-800">10. Contacto</h2>
           <p className="text-slate-600 leading-relaxed mb-2">
             Si tienes preguntas sobre esta política de privacidad, puedes contactarnos:
           </p>

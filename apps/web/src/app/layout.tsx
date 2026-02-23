@@ -9,8 +9,8 @@ import { AdBlockDetector } from '@/components/adblock-detector';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ProClubs Stats - EA SPORTS FC 25',
-  description: 'Busca y rastrea las estadísticas de tu club en EA SPORTS FC 25 Pro Clubs',
+  title: 'ProClubs Stats - EA SPORTS FC 26',
+  description: 'Busca y rastrea las estadísticas de tu club en EA SPORTS FC 26 Pro Clubs',
 };
 
 export default function RootLayout({
