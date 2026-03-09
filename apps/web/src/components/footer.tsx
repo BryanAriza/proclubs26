@@ -29,6 +29,13 @@ export function Footer() {
               </Link>
               <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
               <Link 
+                href="/guides" 
+                className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              >
+                Guías
+              </Link>
+              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+              <Link 
                 href="/contact" 
                 className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
               >
@@ -40,6 +47,13 @@ export function Footer() {
                 className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
               >
                 Privacidad
+              </Link>
+              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+              <Link 
+                href="/terms" 
+                className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              >
+                Términos
               </Link>
             </div>
             <p className="text-xs text-slate-400 pt-2">

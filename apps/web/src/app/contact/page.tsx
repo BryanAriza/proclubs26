@@ -41,10 +41,10 @@ export default function ContactPage() {
                   Para consultas generales, reportar problemas o sugerencias de mejora.
                 </p>
                 <a 
-                  href="mailto:support@proclubsstats.com" 
+                  href="mailto:bryantecnology19@gmail.com" 
                   className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                 >
-                  support@proclubsstats.com
+                  bryantecnology19@gmail.com
                 </a>
               </div>
 
@@ -56,7 +56,7 @@ export default function ContactPage() {
                   Reporta bugs técnicos o sugiere nuevas funcionalidades en nuestro repositorio.
                 </p>
                 <a 
-                  href="https://github.com/yourusername/proclubs/issues" 
+                  href="https://github.com/BryanAriza" 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"

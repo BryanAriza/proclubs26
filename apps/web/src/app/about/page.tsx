@@ -49,6 +49,179 @@ export default function AboutPage() {
           <section className="mb-10">
             <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-3">
               <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
+              Características Detalladas
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <BarChart3 className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-slate-800 mb-2">Análisis Completo de Clubes</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      Consulta la división actual, récord de victorias, habilidad del club, estadio, 
+                      y mucho más. Toda la información que necesitas para evaluar el rendimiento de tu equipo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-slate-800 mb-2">Estadísticas de Jugadores</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      Rankings completos de goleadores, asistentes, valoración promedio y tabla 
+                      detallada con filtros por posición y rendimiento individual de cada miembro.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Trophy className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-slate-800 mb-2">Historial de Partidos</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      Revisa cada partido jugado con detalles completos: resultado, goles, asistencias, 
+                      tarjetas y estadísticas individuales de cada jugador en el encuentro.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-slate-800 mb-2">Multiplataforma</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      Compatible con PlayStation 5, Xbox Series X|S, PlayStation 4, Xbox One y Nintendo 
+                      Switch. Busca clubes en cualquier plataforma desde un solo lugar.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Por qué usar ProClubs Stats */}
+          <section className="mb-10">
+            <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-3">
+              <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
+              ¿Por Qué Usar ProClubs Stats?
+            </h2>
+            <div className="space-y-4 text-slate-600 leading-relaxed">
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  ⚡ Rápido y Eficiente
+                </h3>
+                <p>
+                  Nuestra plataforma utiliza caché inteligente y optimizaciones avanzadas para que 
+                  obtengas los datos lo más rápido posible. Sin esperas innecesarias, directamente 
+                  a las estadísticas que necesitas.
+                </p>
+              </div>
+              
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  📱 Diseño Responsive
+                </h3>
+                <p>
+                  Accede desde cualquier dispositivo: móvil, tablet o computadora. Nuestra interfaz 
+                  se adapta perfectamente a cualquier tamaño de pantalla para una experiencia óptima.
+                </p>
+              </div>
+              
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  🎨 Interfaz Moderna
+                </h3>
+                <p>
+                  Diseñada con los últimos estándares de UX/UI, inspirada en el diseño de EA FC. 
+                  Animaciones fluidas, colores vibrantes y una experiencia visual de primera clase.
+                </p>
+              </div>
+              
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  🔒 Sin Registro
+                </h3>
+                <p>
+                  No necesitas crear cuenta ni proporcionar información personal. Simplemente busca 
+                  tu club y consulta las estadísticas. Tu privacidad es importante para nosotros.
+                </p>
+              </div>
+              
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  💰 Completamente Gratuito
+                </h3>
+                <p>
+                  ProClubs Stats es y siempre será gratuito. Sin suscripciones premium, sin costos 
+                  ocultos, sin limitaciones. Acceso total a todas las funciones sin pagar nada.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Tecnología */}
+          <section className="mb-10">
+            <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-3">
+              <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
+              Tecnología de Vanguardia
+            </h2>
+            <div className="space-y-4 text-slate-600 leading-relaxed">
+              <p>
+                ProClubs Stats está construido con las tecnologías web más modernas y eficientes 
+                del mercado para garantizar el mejor rendimiento y experiencia de usuario:
+              </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 rounded-lg border border-slate-200">
+                  <h4 className="font-bold text-slate-800 mb-2">⚛️ React & Next.js 14</h4>
+                  <p className="text-sm">
+                    Framework de React para aplicaciones web modernas con renderizado optimizado y 
+                    rutas dinámicas para máxima velocidad.
+                  </p>
+                </div>
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 rounded-lg border border-slate-200">
+                  <h4 className="font-bold text-slate-800 mb-2">⚙️ NestJS Backend</h4>
+                  <p className="text-sm">
+                    API robusta construida con NestJS, con sistema de caché y rate limiting para 
+                    proteger los servicios de EA Sports.
+                  </p>
+                </div>
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 rounded-lg border border-slate-200">
+                  <h4 className="font-bold text-slate-800 mb-2">🎨 Tailwind CSS</h4>
+                  <p className="text-sm">
+                    Framework CSS utility-first para un diseño responsive perfecto en todos los 
+                    dispositivos, desde móviles hasta pantallas 4K.
+                  </p>
+                </div>
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 rounded-lg border border-slate-200">
+                  <h4 className="font-bold text-slate-800 mb-2">🔄 TanStack Query</h4>
+                  <p className="text-sm">
+                    Gestión avanzada de estado de servidor con caché automático, revalidación y 
+                    sincronización en tiempo real de datos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Equipo y Contacto */}
+          <section className="mb-10">
+            <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-3">
+              <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
               Características Principales
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
