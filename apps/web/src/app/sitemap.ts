@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://proclubsstats.com';
+  const baseUrl = 'https://proclubs26.netlify.app';
   const currentDate = new Date();
 
   return [
