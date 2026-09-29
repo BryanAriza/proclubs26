@@ -124,6 +124,25 @@ export class EAClient {
     }
   }
 
+  async getPlayoffAchievements(platform: string, clubId: string): Promise<any> {
+    if (this.useMocks) {
+      return [];
+    }
+
+    try {
+      const mappedPlatform = this.mapPlatform(platform);
+      return await this.fetchEaJson('club/playoffAchievements', {
+        platform: mappedPlatform,
+        clubId,
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Playoff achievements unavailable: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      return [];
+    }
+  }
+
   async getClubMatches(
     platform: string,
     clubId: string,
@@ -137,11 +156,21 @@ export class EAClient {
       this.logger.log(`Getting club matches: ${clubId} on ${platform}`);
       const mappedPlatform = this.mapPlatform(platform);
       const mappedMatchType = this.mapMatchType(matchType);
-      const result = await this.eafcApi.matchesStats({
-        platform: mappedPlatform,
-        clubIds: clubId,
-        matchType: mappedMatchType,
-      });
+      // La librería solo acepta liga y playoff. Amistosos y torneos de FC 27
+      // se piden directo a la API pública de EA.
+      const result =
+        mappedMatchType === 'leagueMatch' || mappedMatchType === 'playoffMatch'
+          ? await this.eafcApi.matchesStats({
+              platform: mappedPlatform,
+              clubIds: clubId,
+              matchType: mappedMatchType,
+            })
+          : await this.fetchEaJson('clubs/matches', {
+              platform: mappedPlatform,
+              clubIds: clubId,
+              matchType: mappedMatchType,
+              maxResultCount: '10',
+            });
       this.logger.log(`⚽ Raw API response for matches: ${JSON.stringify(result).substring(0, 500)}...`);
       return result;
     } catch (error) {
@@ -153,30 +182,71 @@ export class EAClient {
   private mapPlatform(platform: string): 'common-gen5' | 'common-gen4' | 'nx' {
     const lowerPlatform = platform?.toLowerCase() || '';
     
-    // PS5, Xbox Series S|X = gen5
-    if (lowerPlatform.includes('ps5') || lowerPlatform.includes('common-gen5') || lowerPlatform === 'xboxseriesxs') {
-      return 'common-gen5';
+    // Switch 2 tiene su propio grupo. En FC 26 este código era Nintendo Switch.
+    if (lowerPlatform === 'nx' || lowerPlatform.includes('switch')) {
+      return 'nx';
     }
-    
-    // PS4, Xbox One = gen4
+
+    // PS4 y Xbox One ya no tienen Clubs en FC 27, pero la API sigue aceptando el grupo.
     if (lowerPlatform.includes('ps4') || lowerPlatform.includes('common-gen4') || lowerPlatform === 'xboxone') {
       return 'common-gen4';
     }
-    
-    // PC = nx
-    if (lowerPlatform.includes('pc') || lowerPlatform === 'nx') {
-      return 'nx';
+
+    // FC 27: PS5, Xbox Series X|S y PC comparten cross-play.
+    if (
+      lowerPlatform.includes('ps5') ||
+      lowerPlatform.includes('common-gen5') ||
+      lowerPlatform === 'xboxseriesxs' ||
+      lowerPlatform === 'pc' ||
+      lowerPlatform.includes('pc')
+    ) {
+      return 'common-gen5';
     }
     
     // Default to gen5
     return 'common-gen5';
   }
 
-  private mapMatchType(matchType?: string): 'leagueMatch' | 'playoffMatch' {
-    if (matchType === 'playoffs' || matchType === 'playoffMatch') {
+  private mapMatchType(
+    matchType?: string,
+  ): 'leagueMatch' | 'playoffMatch' | 'friendlyMatch' | 'tournamentMatch' {
+    if (matchType === 'playoffs' || matchType === 'playoff' || matchType === 'playoffMatch') {
       return 'playoffMatch';
     }
+    if (matchType === 'friendly' || matchType === 'friendlyMatch') {
+      return 'friendlyMatch';
+    }
+    if (matchType === 'tournament' || matchType === 'tournamentMatch') {
+      return 'tournamentMatch';
+    }
     return 'leagueMatch';
+  }
+
+  private async fetchEaJson(path: string, params: Record<string, string>): Promise<any> {
+    const base = this.baseURL.endsWith('/') ? this.baseURL : `${this.baseURL}/`;
+    const url = new URL(path, base);
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0',
+        Accept: 'application/json,text/html;q=0.9,*/*;q=0.8',
+      },
+    });
+
+    if (!response.ok) {
+      throw {
+        statusCode: response.status,
+        message: `EA API request failed (${response.status})`,
+        error: 'EA_API_ERROR',
+      };
+    }
+
+    return response.json();
   }
 
   /**

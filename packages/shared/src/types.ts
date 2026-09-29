@@ -5,6 +5,11 @@ export interface ClubSearchResult {
   name: string;
   platform: Platform;
   regionId?: number;
+  currentDivision?: number | null;
+  wins?: number;
+  losses?: number;
+  ties?: number;
+  gamesPlayed?: number;
   customKit?: {
     clubColors?: string[];
     crestAssetId?: string;
@@ -31,7 +36,9 @@ export interface ClubOverallStats {
   platform: Platform;
   divisionRating?: number;
   skillRating?: number;
-  division?: number;
+  division?: number | null;
+  currentDivision?: number | null;
+  reputationTier?: number | null;
   wins: number;
   losses: number;
   ties: number;
@@ -41,6 +48,14 @@ export interface ClubOverallStats {
   recentResults?: string[];
   titlesWon?: number;
   seasons?: number;
+  playoffAchievements?: PlayoffAchievement[];
+}
+
+export interface PlayoffAchievement {
+  seasonName: string;
+  divisionLabel: string;
+  finishLabel: string;
+  crestUrl: string;
 }
 
 export interface MemberStats {
@@ -55,15 +70,22 @@ export interface MemberStats {
   redCards?: number;
   yellowCards?: number;
   passAccuracy?: number;
+  passesMade?: number;
+  passSuccessRate?: number;
+  tacklesMade?: number;
+  tackleSuccessRate?: number;
+  winRate?: number;
+  shotSuccessRate?: number;
   shotsPerGame?: number;
   tacklesPerGame?: number;
   manOfTheMatch?: number;
   proName?: string;
   proPos?: string;
   proOverall?: number;
+  favoritePosition?: string;
 }
 
-export type MatchType = 'league' | 'playoff' | 'friendly';
+export type MatchType = 'league' | 'playoff' | 'friendly' | 'tournament';
 
 export interface MatchStats {
   matchId: string;

@@ -4,7 +4,7 @@ import { Trophy, Users, BarChart3, Shield, Heart, Code } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Acerca de ProClubs Stats | Estadísticas de EA SPORTS FC Pro Clubs',
-  description: 'Información sobre ProClubs Stats, tu plataforma de confianza para consultar estadísticas de clubes en EA SPORTS FC 26 Pro Clubs.',
+  description: 'Información sobre ProClubs Stats, tu plataforma de confianza para consultar estadísticas de clubes en EA SPORTS FC 27 Pro Clubs.',
 };
 
 export default function AboutPage() {
@@ -21,7 +21,7 @@ export default function AboutPage() {
               </h1>
             </div>
             <p className="text-xl text-slate-600 leading-relaxed">
-              Tu plataforma de confianza para consultar estadísticas de clubes en EA SPORTS FC 26 Pro Clubs
+              Tu plataforma de confianza para consultar estadísticas de clubes en EA SPORTS FC 27 Pro Clubs
             </p>
           </div>
 
@@ -34,7 +34,7 @@ export default function AboutPage() {
             <div className="space-y-4 text-slate-600 leading-relaxed">
               <p>
                 <strong>ProClubs Stats</strong> es una aplicación web gratuita diseñada para ayudar a los jugadores 
-                de EA SPORTS FC 26 Pro Clubs a rastrear y analizar el rendimiento de sus clubes virtuales. 
+                de EA SPORTS FC 27 Pro Clubs a rastrear y analizar el rendimiento de sus clubes virtuales. 
                 Conectamos con la API pública de EA Sports para traerte estadísticas actualizadas de clubes, 
                 jugadores y partidos de manera clara y accesible.
               </p>
@@ -105,8 +105,8 @@ export default function AboutPage() {
                   <div className="flex-1">
                     <h3 className="font-bold text-lg text-slate-800 mb-2">Multiplataforma</h3>
                     <p className="text-sm text-slate-600 leading-relaxed">
-                      Compatible con PlayStation 5, Xbox Series X|S, PlayStation 4, Xbox One y Nintendo 
-                      Switch. Busca clubes en cualquier plataforma desde un solo lugar.
+                      En FC 27, Clubs está en PlayStation 5, Xbox Series X|S y PC (cross-play) y en
+                      Nintendo Switch 2. PS4, Xbox One y Switch original no tienen el modo.
                     </p>
                   </div>
                 </div>

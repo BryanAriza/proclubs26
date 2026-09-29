@@ -5,16 +5,17 @@ import './globals.css';
 import { Providers } from './providers';
 import { Footer } from '@/components/footer';
 import { AdBlockDetector } from '@/components/adblock-detector';
+import { AppIntro } from '@/components/app-intro';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'ProClubs Stats - Estadísticas de EA SPORTS FC 26 Pro Clubs',
+    default: 'ProClubs Stats - Estadísticas de EA SPORTS FC 27 Pro Clubs',
     template: '%s | ProClubs Stats'
   },
-  description: 'Busca y rastrea las estadísticas completas de tu club en EA SPORTS FC 26 Pro Clubs. Análisis de jugadores, historial de partidos, división, habilidad y más. Compatible con todas las plataformas: PlayStation, Xbox y Nintendo Switch.',
-  keywords: ['Pro Clubs', 'EA SPORTS FC 26', 'FC 26', 'estadísticas', 'clubes', 'FIFA', 'EA Sports', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Pro Clubs Stats', 'stats tracker', 'club stats', 'player stats'],
+  description: 'Busca y rastrea las estadísticas completas de tu club en EA SPORTS FC 27 Pro Clubs. Análisis de jugadores, historial de partidos, división, habilidad y más. Compatible con PlayStation 5, Xbox Series X|S, PC y Nintendo Switch 2.',
+  keywords: ['Pro Clubs', 'EA SPORTS FC 27', 'FC 27', 'Clubs', 'The Grounds', 'estadísticas', 'clubes', 'FIFA', 'EA Sports', 'PlayStation 5', 'Xbox Series', 'PC', 'Nintendo Switch 2', 'Pro Clubs Stats', 'stats tracker', 'club stats', 'player stats'],
   authors: [{ name: 'ProClubs Stats' }],
   creator: 'ProClubs Stats',
   publisher: 'ProClubs Stats',
@@ -33,14 +34,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'es_ES',
     url: 'https://proclubsstats.com',
-    title: 'ProClubs Stats - Estadísticas de EA SPORTS FC 26 Pro Clubs',
-    description: 'Plataforma completa para consultar estadísticas de clubes en EA SPORTS FC 26 Pro Clubs. Análisis detallado, historial de partidos y rankings de jugadores.',
+    title: 'ProClubs Stats - Estadísticas de EA SPORTS FC 27 Pro Clubs',
+    description: 'Plataforma completa para consultar estadísticas de clubes en EA SPORTS FC 27 Pro Clubs. Análisis detallado, historial de partidos y rankings de jugadores.',
     siteName: 'ProClubs Stats',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ProClubs Stats - Estadísticas de EA SPORTS FC 26 Pro Clubs',
-    description: 'Busca y analiza las estadísticas de tu club en EA SPORTS FC 26 Pro Clubs. Gratis y sin registro.',
+    title: 'ProClubs Stats - Estadísticas de EA SPORTS FC 27 Pro Clubs',
+    description: 'Busca y analiza las estadísticas de tu club en EA SPORTS FC 27 Pro Clubs. Gratis y sin registro.',
   },
   viewport: {
     width: 'device-width',
@@ -71,6 +72,7 @@ export default function RootLayout({
         
         {/* Detector de AdBlock */}
         <AdBlockDetector />
+        <AppIntro />
         
         <Providers>
           {children}

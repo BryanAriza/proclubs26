@@ -285,14 +285,15 @@ http://localhost:3001/docs
 ### Parámetros Comunes
 
 **Platform (plataforma):**
-- `common-gen5` - PlayStation 5 / Xbox Series X|S / PC (Current Gen)
-- `common-gen4` - PlayStation 4 / Xbox One (Last Gen)
-- `nx` - Nintendo Switch
+- `common-gen5` - Cross-play de FC 27: PlayStation 5, Xbox Series X|S y PC
+- `nx` - Nintendo Switch 2
+- `common-gen4` - PlayStation 4 / Xbox One (sin Clubs en FC 27; se conserva por compatibilidad)
 
 **Match Type (tipo de partido):**
 - `league` - Partidos de liga
 - `playoff` - Partidos de playoff
 - `friendly` - Partidos amistosos
+- `tournament` - Club Tournaments de FC 27 (la API pública de EA aún puede no devolverlos)
 
 ### Ejemplos de Uso
 

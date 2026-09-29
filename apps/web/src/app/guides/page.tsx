@@ -4,7 +4,7 @@ import { BookOpen, Target, Users, Trophy, TrendingUp, Zap, Shield, Star } from '
 
 export const metadata: Metadata = {
   title: 'Guías y Tutoriales | ProClubs Stats - Cómo Usar y Mejorar en Pro Clubs',
-  description: 'Guías completas para usar ProClubs Stats y mejorar tu rendimiento en EA SPORTS FC 26 Pro Clubs. Aprende a interpretar estadísticas, buscar clubes y optimizar tu juego.',
+  description: 'Guías completas para usar ProClubs Stats y mejorar tu rendimiento en EA SPORTS FC 27 Pro Clubs. Aprende a interpretar estadísticas, buscar clubes y optimizar tu juego.',
 };
 
 export default function GuidesPage() {
@@ -43,24 +43,20 @@ export default function GuidesPage() {
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-slate-900 mb-2">Selecciona tu Plataforma</h3>
                   <p className="text-slate-600 leading-relaxed mb-3">
-                    En la página principal, verás tres opciones de plataforma:
+                    En FC 27, Clubs está dentro de The Grounds. En la página principal hay dos grupos:
                   </p>
                   <ul className="space-y-2 text-slate-700">
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600 font-bold mt-1">•</span>
-                      <span><strong>Current Gen:</strong> PlayStation 5, Xbox Series X|S (la más popular)</span>
+                      <span><strong>Cross-Play:</strong> PlayStation 5, Xbox Series X|S y PC comparten los mismos clubes</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600 font-bold mt-1">•</span>
-                      <span><strong>Last Gen:</strong> PlayStation 4, Xbox One</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold mt-1">•</span>
-                      <span><strong>Switch:</strong> Nintendo Switch</span>
+                      <span><strong>Switch 2:</strong> Nintendo Switch 2 tiene su propio grupo</span>
                     </li>
                   </ul>
                   <p className="text-sm text-slate-500 mt-3 italic">
-                    💡 Tip: Si no estás seguro, prueba con "Current Gen" primero, es donde está la mayoría de clubes.
+                    PlayStation 4, Xbox One y Nintendo Switch original tienen el juego, pero no tienen Clubs en FC 27.
                   </p>
                 </div>
               </div>
@@ -128,8 +124,8 @@ export default function GuidesPage() {
                     <div className="bg-white p-4 rounded-lg border border-slate-200">
                       <h4 className="font-bold text-slate-800 mb-2">🏆 Partidos</h4>
                       <p className="text-sm text-slate-600">
-                        Historial completo de partidos recientes con resultado, goles, y 
-                        estadísticas individuales de cada jugador en el encuentro.
+                        Historial separado en Liga, Playoff, Amistoso y Torneo. Los Club Tournaments
+                        de FC 27 (11 contra 11, a veces con House Rules) aparecen en Torneo cuando EA los publica.
                       </p>
                     </div>
                   </div>
@@ -307,7 +303,7 @@ export default function GuidesPage() {
                 ¿Por qué no encuentro mi club?
               </summary>
               <p className="mt-3 text-slate-600 text-sm leading-relaxed">
-                Asegúrate de haber seleccionado la plataforma correcta (Current Gen, Last Gen, Switch). 
+                Asegúrate de haber seleccionado el grupo correcto (Cross-Play o Switch 2). 
                 También verifica que el nombre esté escrito correctamente. Si tu club es muy nuevo o 
                 no ha jugado partidos, puede que aún no aparezca en la API de EA.
               </p>

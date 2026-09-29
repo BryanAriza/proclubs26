@@ -11,8 +11,61 @@ import {
   MemberStats,
   MatchStats,
   Platform,
+  PlayoffAchievement,
 } from '@proclubs/shared';
 import { EAClient } from '../clients/ea.client';
+
+const DIVISION_LABELS: Record<number, string> = {
+  1: 'Elite',
+  2: 'División 1',
+  3: 'División 2',
+  4: 'División 3',
+  5: 'División 4',
+  6: 'División 5',
+};
+
+const FINISH_LABELS: Record<number, string> = {
+  1: 'Campeón',
+  2: 'Subcampeón',
+  3: 'Competitivo',
+  4: 'Media tabla',
+  5: 'También participó',
+  6: 'Participante',
+};
+
+const DIVISION_CREST_BASE =
+  'https://media.contentapi.ea.com/content/dam/eacom/fc/pro-clubs/divisioncrest';
+
+function mapPlayoffAchievements(raw: unknown): PlayoffAchievement[] {
+  if (!Array.isArray(raw)) return [];
+
+  return raw.flatMap((entry) => {
+    const division = parseOptionalNumber(entry?.bestDivision);
+    if (division == null || !DIVISION_LABELS[division]) return [];
+
+    const finish = parseOptionalNumber(entry?.bestFinishGroup);
+    const seasonId = entry?.seasonId ?? entry?.season_id;
+    const seasonName =
+      typeof entry?.seasonName === 'string' && entry.seasonName
+        ? entry.seasonName
+        : `Temporada ${seasonId ?? ''}`.trim();
+
+    return [{
+      seasonName,
+      divisionLabel: DIVISION_LABELS[division],
+      finishLabel: finish != null ? FINISH_LABELS[finish] || '—' : '—',
+      crestUrl: `${DIVISION_CREST_BASE}${division}.png`,
+    }];
+  });
+}
+
+function parseOptionalNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === '' || value === 'null') {
+    return null;
+  }
+  const parsed = parseInt(String(value), 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
 
 @Injectable()
 export class ClubsService {
@@ -41,11 +94,20 @@ export class ClubsService {
         const customCrestId = club.clubInfo?.customKit?.customCrestId || club.clubInfo?.customCrestId || club.clubInfo?.customKit?.crestAssetId;
         const crestUrls = this.eaClient.buildCrestUrl(crestId, customCrestId);
         
+        const currentDivision = parseOptionalNumber(club.currentDivision);
+
         return {
           clubId: club.clubId || '',
-          name: club.name || club.clubInfo?.name || '',
+          name: club.name || club.clubInfo?.name || club.clubName || '',
           platform: platform as Platform,
           regionId: club.clubInfo?.regionId || null,
+          currentDivision: currentDivision != null && DIVISION_LABELS[currentDivision]
+            ? currentDivision
+            : null,
+          wins: parseOptionalNumber(club.wins) ?? 0,
+          losses: parseOptionalNumber(club.losses) ?? 0,
+          ties: parseOptionalNumber(club.ties) ?? 0,
+          gamesPlayed: parseOptionalNumber(club.gamesPlayed) ?? 0,
           customKit: club.clubInfo?.customKit ? {
             clubColors: club.clubInfo.customKit.clubColors,
             crestAssetId: club.clubInfo.customKit.crestAssetId,
@@ -90,12 +152,42 @@ export class ClubsService {
     }
   }
 
+  private async lookupCurrentDivision(
+    platform: string,
+    clubId: string,
+  ): Promise<number | null> {
+    try {
+      const info = await this.eaClient.getClubInfo(platform, clubId);
+      const name = info?.[clubId]?.name;
+      if (!name || String(name).trim().length < 1) return null;
+
+      const results = await this.eaClient.searchClubs(
+        platform,
+        String(name).slice(0, 32),
+      );
+      if (!Array.isArray(results)) return null;
+
+      const match = results.find((club) => String(club.clubId) === String(clubId));
+      const division = parseOptionalNumber(match?.currentDivision);
+      return division != null && DIVISION_LABELS[division] ? division : null;
+    } catch (error: any) {
+      this.logger.warn(
+        `Current division lookup failed for ${clubId}: ${error.message}`,
+      );
+      return null;
+    }
+  }
+
   async getClubOverall(
     platform: string,
     clubId: string,
   ): Promise<ClubOverallStats> {
     try {
-      const data = await this.eaClient.getClubStats(platform, clubId);
+      const [data, achievementsRaw, currentDivision] = await Promise.all([
+        this.eaClient.getClubStats(platform, clubId),
+        this.eaClient.getPlayoffAchievements(platform, clubId),
+        this.lookupCurrentDivision(platform, clubId),
+      ]);
       
       this.logger.log(`📊 Processing club stats data: ${JSON.stringify(data)}`);
 
@@ -127,7 +219,9 @@ export class ClubsService {
         platform: platform as Platform,
         divisionRating: stats.skillRating ? parseInt(stats.skillRating) : null,
         skillRating: stats.skillRating ? parseInt(stats.skillRating) : null,
-        division: stats.bestDivision ? parseInt(stats.bestDivision) : null,
+        division: parseOptionalNumber(stats.bestDivision),
+        currentDivision,
+        reputationTier: parseOptionalNumber(stats.reputationtier),
         wins: stats.wins ? parseInt(stats.wins) : 0,
         losses: stats.losses ? parseInt(stats.losses) : 0,
         ties: stats.ties ? parseInt(stats.ties) : 0,
@@ -137,6 +231,7 @@ export class ClubsService {
         recentResults: recentResults.slice(0, 5), // Solo los últimos 5
         titlesWon: stats.promotions ? parseInt(stats.promotions) : 0,
         seasons: stats.leagueAppearances ? parseInt(stats.leagueAppearances) : 0,
+        playoffAchievements: mapPlayoffAchievements(achievementsRaw),
       };
     } catch (error: any) {
       this.logger.error(`Get club overall error: ${error.message}`);
@@ -162,34 +257,52 @@ export class ClubsService {
 
       // Obtener miembros de currentStats o members
       const membersData = currentStats.members || currentStats || {};
-      
-      if (Object.keys(membersData).length === 0) {
+      const membersList = Array.isArray(membersData)
+        ? membersData
+        : Object.values(membersData);
+
+      if (membersList.length === 0) {
         this.logger.warn(`No members found for club ${clubId}`);
         return [];
       }
 
-      return Object.keys(membersData).map((playerId) => {
-        const member = membersData[playerId];
-        const career = careerStats[playerId] || {};
-        
+      const asNumber = (value: unknown) => {
+        const parsed = parseFloat(String(value ?? ''));
+        return Number.isNaN(parsed) ? 0 : parsed;
+      };
+
+      return membersList.map((member: any, index) => {
+        const career = careerStats[member?.name] || careerStats[member?.playerId] || {};
+        const cleanSheets =
+          asNumber(member.cleanSheetsDef) + asNumber(member.cleanSheetsGK) ||
+          asNumber(member.cleanSheets || member.cleansheetsany || career.cleanSheets);
+        const passSuccessRate = asNumber(
+          member.passSuccessRate ?? member.passAccuracy ?? career.passSuccessRate,
+        );
+
         return {
-          playerId: member.playerId || playerId,
+          playerId: member.playerId || member.name || String(index),
           name: member.name || member.proName || 'Unknown',
-          position: member.position || member.proPos || 'N/A',
-          gamesPlayed: parseInt(member.gamesPlayed || '0'),
-          goals: parseInt(member.goals || '0'),
-          assists: parseInt(member.assists || '0'),
-          cleanSheets: parseInt(member.cleanSheets || member.cleansheetsany || '0'),
-          averageRating: parseFloat(member.averageRating || member.ratingAve || '0'),
-          redCards: parseInt(member.redCards || member.redcards || '0'),
-          yellowCards: parseInt(member.yellowCards || '0'),
-          passAccuracy: member.passAccuracy ? parseFloat(member.passAccuracy) : null,
-          shotsPerGame: member.shotsPerGame ? parseFloat(member.shotsPerGame) : null,
-          tacklesPerGame: member.tacklesPerGame ? parseFloat(member.tacklesPerGame) : null,
-          manOfTheMatch: parseInt(member.manOfTheMatch || member.mom || '0'),
+          position: member.proPos || member.position || member.favoritePosition || 'N/A',
+          gamesPlayed: asNumber(member.gamesPlayed),
+          goals: asNumber(member.goals),
+          assists: asNumber(member.assists),
+          cleanSheets,
+          averageRating: asNumber(member.ratingAve || member.averageRating),
+          redCards: asNumber(member.redCards || member.redcards),
+          yellowCards: asNumber(member.yellowCards),
+          passesMade: asNumber(member.passesMade),
+          passSuccessRate,
+          passAccuracy: passSuccessRate,
+          tacklesMade: asNumber(member.tacklesMade),
+          tackleSuccessRate: asNumber(member.tackleSuccessRate),
+          winRate: asNumber(member.winRate),
+          shotSuccessRate: asNumber(member.shotSuccessRate),
+          manOfTheMatch: asNumber(member.manOfTheMatch || member.mom),
           proName: member.proName || member.name || null,
           proPos: member.proPos || member.position || member.pos || null,
-          proOverall: member.proOverall ? parseInt(member.proOverall) : null,
+          proOverall: member.proOverall ? parseInt(member.proOverall, 10) : null,
+          favoritePosition: member.favoritePosition || null,
         };
       });
     } catch (error: any) {

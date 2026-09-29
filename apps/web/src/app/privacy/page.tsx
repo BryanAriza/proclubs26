@@ -67,7 +67,7 @@ export default function PrivacyPage() {
               </h2>
               <p className="mb-4 text-slate-600 leading-relaxed">
                 Esta aplicación web, <strong>ProClubs Stats</strong>, muestra estadísticas públicas 
-                de clubes de EA SPORTS FC 26 Pro Clubs obtenidas de la API oficial de Electronic Arts. 
+                de clubes de EA SPORTS FC 27 Pro Clubs obtenidas de la API oficial de Electronic Arts. 
                 Nos comprometemos a proteger tu privacidad y a ser completamente transparentes sobre 
                 cómo utilizamos cualquier información relacionada con tu visita a nuestro sitio.
               </p>
@@ -223,7 +223,7 @@ export default function PrivacyPage() {
                 </li>
                 <li>
                   <strong>Cookies de preferencias:</strong> Para recordar tu configuración de plataforma 
-                  seleccionada (Current Gen, Last Gen, Switch)
+                  seleccionada (Cross-Play o Switch 2)
                 </li>
                 <li>
                   <strong>Cookies de rendimiento:</strong> Para optimizar la carga de datos y mejorar 
@@ -331,7 +331,7 @@ export default function PrivacyPage() {
                 tu hijo nos ha proporcionado información personal, contáctanos inmediatamente.
               </p>
               <p className="text-slate-600 leading-relaxed">
-                <strong>Nota:</strong> EA SPORTS FC 26 tiene su propia clasificación por edades. 
+                <strong>Nota:</strong> EA SPORTS FC 27 tiene su propia clasificación por edades. 
                 ProClubs Stats simplemente muestra estadísticas públicas del juego y no verifica 
                 la edad de los visitantes.
               </p>

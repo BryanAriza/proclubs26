@@ -208,7 +208,7 @@ export function AdBlockDetector() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                    <span>¡Disfruta de todas las estadísticas de EA Sports FC 26! ⚽</span>
+                    <span>¡Disfruta de todas las estadísticas de EA Sports FC 27! ⚽</span>
                   </li>
                 </ol>
               </div>

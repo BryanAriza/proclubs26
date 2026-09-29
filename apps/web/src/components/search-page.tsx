@@ -3,26 +3,32 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { Search, Trophy, Users } from 'lucide-react';
+import { ChevronRight, Search, Shield, Swords, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDebounce } from '@/hooks/use-debounce';
 import { clubsApi } from '@/lib/api';
-import { platformLabel, type Platform } from '@proclubs/shared';
+import { getRegionName } from '@proclubs/shared';
 import { Input } from './ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import AdBanner from './ad-banner';
 
-// Componente para manejar el crest con fallbacks automáticos
-function ClubCrest({ 
-  primaryUrl, 
-  fallbackUrl, 
-  clubName, 
-  clubColors 
-}: { 
-  primaryUrl?: string; 
-  fallbackUrl?: string | null; 
-  clubName: string; 
+const DIVISION_LABELS: Record<number, string> = {
+  1: 'Elite',
+  2: 'División 1',
+  3: 'División 2',
+  4: 'División 3',
+  5: 'División 4',
+  6: 'División 5',
+};
+
+function ClubCrest({
+  primaryUrl,
+  fallbackUrl,
+  clubName,
+  clubColors,
+}: {
+  primaryUrl?: string;
+  fallbackUrl?: string | null;
+  clubName: string;
   clubColors?: string[];
 }) {
   const [imageError, setImageError] = useState(false);
@@ -30,126 +36,77 @@ function ClubCrest({
 
   const handleImageError = () => {
     if (!useFallback && fallbackUrl) {
-      // console.log(`⚠️ Primary crest failed for ${clubName}, trying fallback...`);
       setUseFallback(true);
     } else {
-      // console.warn(`❌ Crest not available for ${clubName}, using custom badge`);
       setImageError(true);
     }
   };
 
-  // Obtener iniciales del club (máximo 3 letras)
   const getInitials = (name: string) => {
     const words = name.trim().split(/\s+/);
-    if (words.length === 1) {
-      return name.substring(0, 3).toUpperCase();
-    }
-    return words.slice(0, 3).map(w => w[0]).join('').toUpperCase();
+    if (words.length === 1) return name.substring(0, 3).toUpperCase();
+    return words.slice(0, 3).map((word) => word[0]).join('').toUpperCase();
   };
 
-  // Si no hay URL o falló todo, mostrar badge personalizado
   if (!primaryUrl || imageError) {
     const initials = getInitials(clubName);
-    const primaryColor = clubColors?.[0] || '#3B82F6';
-    const secondaryColor = clubColors?.[1] || '#6366F1';
+    const primaryColor = clubColors?.[0] || '#1e293b';
+    const secondaryColor = clubColors?.[1] || '#334155';
 
     return (
-      <motion.div
-        className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 relative"
-        whileHover={{ scale: 1.1, rotate: 5 }}
-        transition={{ type: "spring", stiffness: 300 }}
-      >
-        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
+      <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center">
+        <svg viewBox="0 0 100 100" className="h-full w-full">
           <defs>
             <linearGradient id={`grad-${clubName.replace(/\s/g, '')}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style={{ stopColor: primaryColor, stopOpacity: 1 }} />
               <stop offset="100%" style={{ stopColor: secondaryColor, stopOpacity: 1 }} />
             </linearGradient>
           </defs>
-          {/* Escudo clásico */}
           <path
             d="M50 5 L85 20 L85 50 Q85 75, 50 95 Q15 75, 15 50 L15 20 Z"
             fill={`url(#grad-${clubName.replace(/\s/g, '')})`}
-            stroke="white"
-            strokeWidth="2"
           />
-          {/* Iniciales del club */}
           <text
             x="50"
-            y="55"
+            y="58"
             textAnchor="middle"
             fill="white"
-            fontSize={initials.length === 1 ? "45" : initials.length === 2 ? "35" : "28"}
-            fontWeight="bold"
-            fontFamily="Arial, sans-serif"
+            fontSize={initials.length > 2 ? '24' : '32'}
+            fontWeight="700"
+            fontFamily="Inter, Arial, sans-serif"
           >
             {initials}
           </text>
         </svg>
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 relative"
-      whileHover={{ scale: 1.1, rotate: 5 }}
-      transition={{ type: "spring", stiffness: 300 }}
-    >
+    <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center">
       <img
         src={useFallback && fallbackUrl ? fallbackUrl : primaryUrl}
-        alt={`${clubName} crest`}
-        className="w-full h-full object-contain rounded-lg drop-shadow-lg"
+        alt=""
+        className="h-full w-full object-contain"
         onError={handleImageError}
       />
-    </motion.div>
+    </div>
   );
 }
 
-// Mapeo de IDs de región a nombres
-// Basado en regionIds comunes de EA Sports FC Pro Clubs
-const regionNames: Record<number, string> = {
-  4407629: 'América del Sur', // COKA FC (Colombia) usa este ID
-  4407630: 'Europa',
-  4407631: 'América del Norte',
-  4407632: 'Asia',
-  4407633: 'Oceanía',
-  4407634: 'África',
-  4407635: 'Medio Oriente',
-};
-
-const getRegionName = (regionId: number | null): string => {
-  if (!regionId) return 'Desconocida';
-  const regionName = regionNames[regionId];
-  // Si encuentras un nuevo regionId, dime el número y el nombre del club para agregarlo
-  return regionName || `Región ID: ${regionId}`;
-};
-
 export function SearchPage() {
-  const [platform, setPlatform] = useState<Platform>('common-gen5');
+  const [platform, setPlatform] = useState<'common-gen5' | 'nx'>('common-gen5');
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounce(searchTerm, 400);
 
-  const platformInfo = {
-    'common-gen5': {
-      name: 'Current Gen',
-      consoles: ['PlayStation 5', 'Xbox Series X/S'],
-      icon: '🎮',
-      description: 'Nueva generación de consolas'
-    },
-    'common-gen4': {
-      name: 'Last Gen',
-      consoles: ['PlayStation 4', 'Xbox One'],
-      icon: '🕹️',
-      description: 'Generación anterior de consolas'
-    },
-    'nx': {
-      name: 'Switch',
-      consoles: ['Nintendo Switch'],
-      icon: '🎯',
-      description: 'Consola híbrida de Nintendo'
-    }
-  };
+  const platforms: Array<{
+    id: 'common-gen5' | 'nx';
+    name: string;
+    detail: string;
+  }> = [
+    { id: 'common-gen5', name: 'Cross-Play', detail: 'PS5 · Xbox Series · PC' },
+    { id: 'nx', name: 'Switch 2', detail: 'Nintendo Switch 2' },
+  ];
 
   const { data: results = [], isLoading } = useQuery({
     queryKey: ['clubs', 'search', platform, debouncedSearch],
@@ -157,410 +114,240 @@ export function SearchPage() {
     enabled: debouncedSearch.length >= 2,
   });
 
-  // Debug: Log results to console
-  if (results.length > 0) {
-    // console.log('🔍 Search results:', results);
-    // console.log('🎨 First club customKit:', results[0]?.customKit);
-    // console.log('🎨 First club ALL data:', JSON.stringify(results[0], null, 2));
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden">
-      {/* Efectos de fondo futurista */}
-      <div className="absolute inset-0" style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(99, 102, 241, 0.03) 2px, rgba(99, 102, 241, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(59, 130, 246, 0.03) 2px, rgba(59, 130, 246, 0.03) 4px)'}}></div>
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-200/50 to-transparent"></div>
-      <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-100/40 to-indigo-100/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-tr from-cyan-100/40 to-blue-100/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-      
-      <div className="container mx-auto px-4 py-12 max-w-5xl relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+    <div className="min-h-screen bg-[#f3f5f7]">
+      <section className="relative overflow-hidden bg-[#0b1220] text-white">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-amber-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-12 text-center"
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="container relative mx-auto max-w-5xl px-4 pb-10 pt-14 md:pb-12 md:pt-20"
         >
-          {/* Logo EA */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, type: "spring" }}
-            className="inline-flex items-center gap-3 mb-6 px-6 py-3 bg-white/60 backdrop-blur-sm border border-slate-200/50 rounded-2xl shadow-lg shadow-blue-100/50"
-          >
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-xl blur-md"></div>
-              <div className="relative bg-gradient-to-br from-slate-900 to-slate-700 p-3 rounded-xl">
-                <Trophy className="w-8 h-8 text-blue-100" />
-              </div>
-            </div>
-            <div className="text-left">
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">EA SPORTS</div>
-              <div className="text-2xl font-black text-slate-900 uppercase tracking-tight">SPORTS</div>
-            </div>
-          </motion.div>
-          
-          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black mb-4 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent uppercase tracking-tighter">
-            FC 26
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">
+            EA SPORTS FC 27 · Clubs
+          </p>
+          <h1 className="mt-3 max-w-xl text-4xl font-black tracking-tight md:text-6xl">
+            Encuentra tu club
           </h1>
-          <div className="h-1 w-32 mx-auto mb-6 bg-gradient-to-r from-transparent via-blue-400/50 to-transparent rounded-full"></div>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-lg md:text-xl text-slate-600 font-semibold uppercase tracking-wider"
-          >
-            <Users className="inline mr-2 w-6 h-6 text-blue-500/70" />
-            Rastrea las estadísticas de tu Pro Club
-          </motion.p>
+          <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-300 md:text-lg">
+            División actual, récord y jugadores de The Clubhouse. Los datos salen de la API pública de EA.
+          </p>
         </motion.div>
+      </section>
 
-        {/* Anuncio Banner Superior */}
+      <div className="relative z-10 bg-[#f3f5f7] pb-16">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
+          transition={{ duration: 0.5, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto w-full max-w-5xl bg-white p-4 shadow-xl shadow-slate-900/10 sm:mt-5 sm:w-[calc(100%-2rem)] sm:rounded-3xl sm:border sm:border-slate-200 md:p-6"
         >
-          <AdBanner 
-            dataAdSlot="1111111111" 
-            dataAdFormat="horizontal"
-            className="flex justify-center"
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <Card className="mb-8 shadow-xl shadow-blue-100/50 border border-slate-200/50 bg-white/70 backdrop-blur-md">
-            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
-            <CardHeader className="relative z-10">
-              <CardTitle className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-3 uppercase tracking-wide">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-xl blur-sm"></div>
-                  <div className="relative p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                    <Search className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                Buscar Clubs
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-            <div className="mb-4">
-              <Tabs
-                value={platform}
-                onValueChange={(v) => setPlatform(v as Platform)}
-                className="mb-3"
-              >
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="common-gen5">
-                    {platformLabel('common-gen5')}
-                  </TabsTrigger>
-                  <TabsTrigger value="common-gen4">
-                    {platformLabel('common-gen4')}
-                  </TabsTrigger>
-                  <TabsTrigger value="nx">{platformLabel('nx')}</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              
-              {/* Información de plataformas - Dinámica */}
-              <motion.div 
-                key={platform}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-gradient-to-br from-blue-50/60 to-indigo-50/40 border border-blue-200/40 rounded-xl p-4 backdrop-blur-sm"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="text-3xl">{platformInfo[platform].icon}</div>
-                  <div className="flex-1">
-                    <p className="font-bold text-blue-900 text-sm mb-0.5">{platformInfo[platform].name}</p>
-                    <p className="text-xs text-slate-600 mb-2">{platformInfo[platform].description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {platformInfo[platform].consoles.map((console, idx) => (
-                        <span 
-                          key={idx}
-                          className="inline-flex items-center px-2.5 py-1 bg-white/70 border border-blue-100/50 rounded-full text-xs font-semibold text-blue-700"
-                        >
-                          {console}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-
-            <motion.div 
-              className="relative"
-              whileTap={{ scale: 0.98 }}
-            >
-              <Search className="absolute left-5 top-5 h-5 w-5 text-blue-400" />
-              <Input
-                placeholder="Ingresa el nombre del club..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-14 h-16 text-lg font-semibold bg-white/80 border border-slate-200/50 text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus:bg-white focus:border-blue-300/50 focus:ring-4 focus:ring-blue-100/50 transition-all rounded-xl shadow-sm"
-              />
-            </motion.div>
-
-            <AnimatePresence>
-              {debouncedSearch.length < 2 && searchTerm.length > 0 && (
-                <motion.p
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-4 text-sm text-blue-600/80 font-semibold"
+          <div className="grid grid-cols-2 items-stretch gap-2">
+            {platforms.map((item) => {
+              const selected = platform === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setPlatform(item.id)}
+                  className={`min-w-0 rounded-2xl px-3 py-3 text-left transition sm:px-4 ${
+                    selected
+                      ? 'bg-slate-950 text-white shadow-md'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
                 >
-                  💡 Escribe al menos 2 caracteres para buscar
-                </motion.p>
-              )}
-            </AnimatePresence>
-          </CardContent>
-        </Card>
+                  <span className="block truncate text-sm font-bold">{item.name}</span>
+                  <span className={`mt-0.5 block truncate text-[11px] leading-4 sm:text-xs ${selected ? 'text-slate-300' : 'text-slate-500'}`}>
+                    {item.detail}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative mt-4">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <Input
+              placeholder="Nombre del club"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base font-medium text-slate-950 placeholder:font-normal placeholder:text-slate-400 focus-visible:ring-amber-300"
+            />
+          </div>
+
+          <AnimatePresence>
+            {debouncedSearch.length < 2 && searchTerm.length > 0 && (
+              <motion.p
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 text-sm text-slate-500"
+              >
+                Escribe al menos 2 caracteres.
+              </motion.p>
+            )}
+          </AnimatePresence>
         </motion.div>
+
+        <div className="mx-auto max-w-5xl px-3 sm:px-4">
 
         <AnimatePresence>
           {isLoading && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-center gap-3 py-12 text-slate-500"
             >
-              <div className="inline-block relative">
-                <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-400 border-t-transparent"></div>
-                <div className="absolute inset-0 h-16 w-16 animate-ping rounded-full border-4 border-blue-300 opacity-30"></div>
-              </div>
-              <motion.p
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="mt-4 text-lg bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-bold uppercase tracking-wide"
-              >
-                Buscando clubs...
-              </motion.p>
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900" />
+              Buscando clubs
             </motion.div>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
           {!isLoading && results.length > 0 && (
-            <motion.div 
-              initial="hidden"
-              animate="show"
-              exit="hidden"
-              variants={{
-                hidden: { opacity: 0 },
-                show: {
-                  opacity: 1,
-                  transition: {
-                    staggerChildren: 0.1
-                  }
-                }
-              }}
-              className="grid gap-6 md:grid-cols-2"
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mt-3 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
             >
-              {results.map((club, index) => (
-                <motion.div
-                  key={club.clubId}
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    show: { opacity: 1, y: 0 }
-                  }}
-                >
-                  <Link href={`/club/${platform}/${club.clubId}`}>
-                    <Card className="group hover:shadow-2xl hover:shadow-blue-100/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer border border-slate-200/50 bg-white/80 backdrop-blur-sm hover:bg-white hover:border-blue-200/50 overflow-hidden">
-                      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent pointer-events-none"></div>
-                      <CardHeader className="relative z-10">
-                        <CardTitle className="flex items-center gap-3 text-lg md:text-xl text-slate-900 group-hover:text-blue-900 transition-colors font-bold uppercase tracking-wide">
-                          {/* Logo del club con fallback automático */}
-                          <ClubCrest
-                            primaryUrl={club.customKit?.crestUrl}
-                            fallbackUrl={club.customKit?.crestUrlFallback}
-                            clubName={club.name}
-                            clubColors={club.customKit?.clubColors}
-                          />
-                          {club.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="relative z-10">
-                        <div className="text-sm text-slate-600 space-y-2">
-                          {club.regionId && (
-                            <p className="flex items-center gap-2 text-slate-600">
-                              <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-sm shadow-blue-400/50"></span>
-                              <span className="font-semibold text-blue-900">{getRegionName(club.regionId)}</span>
-                            </p>
-                          )}
+              <div className="border-b border-slate-100 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                {results.length} {results.length === 1 ? 'club' : 'clubs'}
+              </div>
+              <ul>
+                {results.map((club) => {
+                  const divisionLabel =
+                    club.currentDivision != null
+                      ? DIVISION_LABELS[club.currentDivision]
+                      : null;
+                  return (
+                    <li key={club.clubId} className="border-b border-slate-100 last:border-b-0">
+                      <Link
+                        href={`/club/${platform}/${club.clubId}`}
+                        className="flex items-center gap-4 px-4 py-4 transition hover:bg-slate-50 md:px-5"
+                      >
+                        <ClubCrest
+                          primaryUrl={club.customKit?.crestUrl}
+                          fallbackUrl={club.customKit?.crestUrlFallback}
+                          clubName={club.name}
+                          clubColors={club.customKit?.clubColors}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-lg font-bold text-slate-950">{club.name}</p>
+                          <p className="mt-0.5 truncate text-sm text-slate-500">
+                            {club.regionId ? getRegionName(club.regionId) : 'Región no disponible'}
+                            {typeof club.gamesPlayed === 'number' ? ` · ${club.gamesPlayed} partidos` : ''}
+                          </p>
+                          <div className="mt-2 flex items-center gap-3 sm:hidden">
+                            {divisionLabel && (
+                              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-800">
+                                <img
+                                  src={`https://media.contentapi.ea.com/content/dam/eacom/fc/pro-clubs/divisioncrest${club.currentDivision}.png`}
+                                  alt=""
+                                  className="h-7 w-7 object-contain"
+                                />
+                                {divisionLabel}
+                              </span>
+                            )}
+                            <span className="text-sm font-semibold tabular-nums text-slate-600">
+                              {club.wins ?? 0}-{club.ties ?? 0}-{club.losses ?? 0}
+                            </span>
+                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
+                        <div className="hidden items-center gap-4 sm:flex">
+                          {divisionLabel && (
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={`https://media.contentapi.ea.com/content/dam/eacom/fc/pro-clubs/divisioncrest${club.currentDivision}.png`}
+                                alt=""
+                                className="h-10 w-10 object-contain"
+                              />
+                              <span className="text-sm font-semibold text-slate-800">{divisionLabel}</span>
+                            </div>
+                          )}
+                          <div className="text-right text-sm font-semibold tabular-nums text-slate-700">
+                            <span className="text-emerald-700">{club.wins ?? 0}</span>
+                            <span className="mx-1 text-slate-300">·</span>
+                            <span>{club.ties ?? 0}</span>
+                            <span className="mx-1 text-slate-300">·</span>
+                            <span className="text-rose-700">{club.losses ?? 0}</span>
+                            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">V · E · D</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-300" />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </motion.div>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {!isLoading &&
-            debouncedSearch.length >= 2 &&
-            results.length === 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-              >
-                <Card className="border-2 border-dashed border-blue-200/50 bg-gradient-to-br from-white/80 to-blue-50/30 backdrop-blur-sm shadow-lg shadow-blue-100/30">
-                  <CardContent className="py-16 text-center">
-                    <motion.div
-                      animate={{ rotate: [0, 10, -10, 0] }}
-                      transition={{ duration: 0.5 }}
-                      className="text-6xl mb-4"
-                    >
-                      🔍
-                    </motion.div>
-                    <p className="text-xl bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent font-black uppercase tracking-wide">No se encontraron clubs</p>
-                    <p className="text-sm text-slate-600 mt-2 font-medium">Intenta con otro término de búsqueda</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+          {!isLoading && debouncedSearch.length >= 2 && results.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="mt-3 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center"
+            >
+              <p className="text-lg font-bold text-slate-900">No hay clubs con ese nombre</p>
+              <p className="mt-1 text-sm text-slate-500">
+                Prueba otro nombre o cambia entre Cross-Play y Switch 2.
+              </p>
+            </motion.div>
+          )}
         </AnimatePresence>
 
-        {/* Sección informativa solo cuando no hay búsqueda activa */}
-        {debouncedSearch.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-12 space-y-8"
-          >
-            {/* ¿Qué es ProClubs Stats? */}
-            <Card className="shadow-lg border border-slate-200/50 bg-white/70 backdrop-blur-md">
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
-              <CardHeader>
-                <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                  <Trophy className="w-7 h-7 text-blue-600" />
-                  ¿Qué es ProClubs Stats?
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-slate-600 leading-relaxed">
-                <p>
-                  <strong>ProClubs Stats</strong> es tu herramienta definitiva para analizar y rastrear 
-                  el rendimiento de clubes en <strong>EA SPORTS FC 26 Pro Clubs</strong>. Conectamos 
-                  directamente con la API oficial de EA Sports para traerte estadísticas actualizadas 
-                  en tiempo real de cualquier club, sin importar la plataforma que uses.
-                </p>
-                <p>
-                  Nuestra plataforma está diseñada con pasión por jugadores para jugadores, ofreciendo 
-                  una experiencia intuitiva, rápida y completamente gratuita. Consulta estadísticas 
-                  detalladas de clubes, analiza el rendimiento de jugadores individuales y revisa el 
-                  historial completo de partidos con solo buscar el nombre de tu club.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Características principales */}
-            <Card className="shadow-lg border border-slate-200/50 bg-white/70 backdrop-blur-md">
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
-              <CardHeader>
-                <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                  <Users className="w-7 h-7 text-blue-600" />
-                  Características Destacadas
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200">
-                    <div className="text-3xl mb-3">📊</div>
-                    <h3 className="font-bold text-slate-800 mb-2">Estadísticas Completas</h3>
-                    <p className="text-sm text-slate-600">
-                      División actual, récord de victorias, derrotas y empates, goles a favor y en contra, 
-                      y estadísticas de rendimiento de cada jugador.
-                    </p>
-                  </div>
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200">
-                    <div className="text-3xl mb-3">🏆</div>
-                    <h3 className="font-bold text-slate-800 mb-2">Historial de Partidos</h3>
-                    <p className="text-sm text-slate-600">
-                      Revisa el historial completo de partidos de tu club con detalles de cada encuentro, 
-                      incluyendo goles, asistencias y rendimiento individual.
-                    </p>
-                  </div>
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200">
-                    <div className="text-3xl mb-3">⚡</div>
-                    <h3 className="font-bold text-slate-800 mb-2">100% Gratuito</h3>
-                    <p className="text-sm text-slate-600">
-                      Sin registro, sin suscripciones, sin costos ocultos. Acceso completo a todas las 
-                      funcionalidades de forma totalmente gratuita.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Cómo funciona */}
-            <Card className="shadow-lg border border-slate-200/50 bg-white/70 backdrop-blur-md">
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
-              <CardHeader>
-                <CardTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                  <Search className="w-7 h-7 text-blue-600" />
-                  Cómo Usar ProClubs Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex gap-4 items-start">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                      1
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-slate-800 mb-1">Selecciona tu Plataforma</h3>
-                      <p className="text-sm text-slate-600">
-                        Elige entre PlayStation 5/Xbox Series X|S (Current Gen), PlayStation 4/Xbox One 
-                        (Last Gen) o Nintendo Switch según donde juegues.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                      2
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-slate-800 mb-1">Busca tu Club</h3>
-                      <p className="text-sm text-slate-600">
-                        Escribe el nombre de tu club en el buscador. Los resultados aparecerán automáticamente 
-                        mientras escribes.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                      3
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-slate-800 mb-1">Analiza las Estadísticas</h3>
-                      <p className="text-sm text-slate-600">
-                        Haz clic en tu club para ver estadísticas detalladas, ranking de jugadores, historial 
-                        de partidos y mucho más.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Disclaimer */}
-            <div className="bg-slate-50 border border-slate-200 p-6 rounded-xl text-sm text-slate-600 leading-relaxed text-center">
-              <p>
-                <strong>Nota:</strong> ProClubs Stats es un proyecto independiente de la comunidad 
-                y <strong>NO está afiliado con Electronic Arts Inc. o EA Sports.</strong> EA SPORTS FC 
-                y Pro Clubs son marcas registradas de Electronic Arts Inc. Todos los datos mostrados 
-                provienen de la API pública de EA Sports.
-              </p>
-            </div>
-          </motion.div>
+        {!isLoading && results.length > 0 && (
+          <div className="mt-4">
+            <AdBanner
+              dataAdSlot="1111111111"
+              dataAdFormat="horizontal"
+              className="flex justify-center"
+            />
+          </div>
         )}
+
+        {debouncedSearch.length === 0 && (
+          <div className="mt-10">
+            <div className="grid gap-3 md:grid-cols-3">
+              {[
+                {
+                  icon: Shield,
+                  title: 'División actual',
+                  text: 'El escudo de la división en la que está el club ahora, y cómo cambia con los resultados.',
+                },
+                {
+                  icon: Users,
+                  title: 'Plantilla',
+                  text: 'Goles, asistencias y posición de cada jugador del Clubhouse.',
+                },
+                {
+                  icon: Swords,
+                  title: 'Partidos',
+                  text: 'Liga, playoffs y amistosos, con el resultado de cada encuentro.',
+                },
+              ].map((item) => (
+                <div key={item.title} className="rounded-3xl border border-slate-200 bg-white p-5">
+                  <item.icon className="h-5 w-5 text-amber-500" />
+                  <h2 className="mt-3 text-base font-bold text-slate-950">{item.title}</h2>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-500">{item.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-relaxed text-slate-400">
+              ProClubs Stats es un proyecto independiente y no está afiliado con Electronic Arts. EA SPORTS FC y Clubs son marcas de Electronic Arts Inc.
+            </p>
+          </div>
+        )}
+        </div>
       </div>
     </div>
   );

@@ -25,7 +25,9 @@ export interface ClubOverallStats {
     platform: Platform;
     divisionRating?: number;
     skillRating?: number;
-    division?: number;
+    division?: number | null;
+    currentDivision?: number | null;
+    reputationTier?: number | null;
     wins: number;
     losses: number;
     ties: number;
@@ -35,6 +37,13 @@ export interface ClubOverallStats {
     recentResults?: string[];
     titlesWon?: number;
     seasons?: number;
+    playoffAchievements?: PlayoffAchievement[];
+}
+export interface PlayoffAchievement {
+    seasonName: string;
+    divisionLabel: string;
+    finishLabel: string;
+    crestUrl: string;
 }
 export interface MemberStats {
     playerId: string;
@@ -55,7 +64,7 @@ export interface MemberStats {
     proPos?: string;
     proOverall?: number;
 }
-export type MatchType = 'league' | 'playoff' | 'friendly';
+export type MatchType = 'league' | 'playoff' | 'friendly' | 'tournament';
 export interface MatchStats {
     matchId: string;
     timestamp: number;

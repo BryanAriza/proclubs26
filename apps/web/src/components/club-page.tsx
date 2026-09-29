@@ -2,20 +2,20 @@
 
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { ArrowLeft, Trophy, Users, Star, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Trophy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clubsApi } from '@/lib/api';
 import {
   formatNumber,
   formatWinRate,
-  platformLabel,
+  getRegionName,
   type Platform,
 } from '@proclubs/shared';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Separator } from './ui/separator';
 import { PlayersTable } from './players-table';
+import { PlayerRankings } from './player-rankings';
 import { MatchesList } from './matches-list';
 import AdBanner from './ad-banner';
 
@@ -130,12 +130,44 @@ export function ClubPage({ platform, clubId }: ClubPageProps) {
     );
   }
 
+  const divisionLabels: Record<number, string> = {
+    1: 'Elite',
+    2: 'División 1',
+    3: 'División 2',
+    4: 'División 3',
+    5: 'División 4',
+    6: 'División 5',
+  };
+  const currentDivisionLabel =
+    overall.currentDivision != null
+      ? divisionLabels[overall.currentDivision]
+      : null;
+  const currentDivisionCrest = currentDivisionLabel
+    ? `https://media.contentapi.ea.com/content/dam/eacom/fc/pro-clubs/divisioncrest${overall.currentDivision}.png`
+    : null;
   const winRate = formatWinRate(overall.wins, overall.gamesPlayed);
+  const reputationNames = ['Hometown Heroes', 'Emerging Stars', 'Well Known', 'World Renown'];
+  const reputationName =
+    overall.reputationTier != null ? reputationNames[overall.reputationTier] : null;
+  const achievements = overall.playoffAchievements ?? [];
+  const defaultDivisionCrest =
+    'https://media.contentapi.ea.com/content/dam/eacom/fc/pro-clubs/default-division.png';
+  const roleCounts = members.reduce(
+    (counts, member) => {
+      const position = Number(member.proPos || member.position);
+      if (position === 0) counts.gk += 1;
+      else if (position >= 1 && position <= 9) counts.def += 1;
+      else if (position >= 10 && position <= 18) counts.mid += 1;
+      else if (!Number.isNaN(position)) counts.fwd += 1;
+      return counts;
+    },
+    { gk: 0, def: 0, mid: 0, fwd: 0 },
+  );
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Efectos de fondo tipo estadio */}
-      <div className="absolute inset-0" style={{backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px)'}}></div>
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-slate-100 to-amber-50 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-blue-200/40 blur-3xl"></div>
+      <div className="pointer-events-none absolute top-40 -left-16 h-72 w-72 rounded-full bg-indigo-100/50 blur-3xl"></div>
       
       <div className="container mx-auto px-2 md:px-4 py-4 md:py-8 max-w-7xl relative z-10">
         <motion.div 
@@ -156,136 +188,124 @@ export function ClubPage({ platform, clubId }: ClubPageProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="mb-4 md:mb-8 shadow-xl border-2 border-slate-200 bg-white overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-slate-300 pointer-events-none"></div>
-            <CardHeader className="relative z-10 p-4 md:p-6">
-              <div className="flex items-center justify-between flex-wrap gap-3 md:gap-6">
-                <div>
-                  <motion.div
-                    initial={{ scale: 0.9 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200 }}
-                  >
-                    <CardTitle className="text-2xl md:text-5xl font-black mb-2 md:mb-3 text-slate-900 flex items-center gap-2 md:gap-4 uppercase tracking-tight">
-                      <motion.div
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                        className="flex-shrink-0"
-                      >
-                        {info.customKit?.crestAssetId ? (
-                          <>
-                            <img 
-                              src={`https://eafc24.content.easports.com/fifa/fltOnlineAssets/24B23FDE-7835-41C2-87A2-F453DFDB2E82/2024/fcweb/crests/256x256/l${info.customKit.crestAssetId}.png`}
-                              alt={`Escudo de ${info.name}`}
-                              className="w-12 h-12 md:w-20 md:h-20 object-contain drop-shadow-lg"
-                              onError={(e) => {
-                                // console.log('❌ Error loading crest image');
-                                const target = e.currentTarget as HTMLImageElement;
-                                target.style.display = 'none';
-                                const fallback = target.nextElementSibling as HTMLElement;
-                                if (fallback) fallback.classList.remove('hidden');
-                              }}
-                            />
-                            <div className="hidden">
-                              <Trophy className="w-8 h-8 md:w-16 md:h-16 text-slate-800" />
-                            </div>
-                          </>
-                        ) : (
-                          <Trophy className="w-8 h-8 md:w-16 md:h-16 text-slate-800" />
-                        )}
-                      </motion.div>
+          <Card className="mb-4 md:mb-8 overflow-hidden border border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur-sm">
+            <CardHeader className="relative z-10 p-5 md:p-8">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                <div className="flex items-center gap-4 md:gap-5">
+                  <div className="flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-slate-50 to-blue-50 shadow-inner">
+                    {info.customKit?.crestAssetId ? (
+                      <img
+                        src={`https://eafc24.content.easports.com/fifa/fltOnlineAssets/24B23FDE-7835-41C2-87A2-F453DFDB2E82/2024/fcweb/crests/256x256/l${info.customKit.crestAssetId}.png`}
+                        alt={`Escudo de ${info.name}`}
+                        className="h-16 w-16 md:h-20 md:w-20 object-contain"
+                      />
+                    ) : (
+                      <Trophy className="h-10 w-10 text-slate-700" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
+                      {getRegionName(info.regionId)}
+                    </p>
+                    <CardTitle className="mt-1 text-3xl md:text-5xl font-black tracking-tight text-slate-950">
                       {info.name}
                     </CardTitle>
-                  </motion.div>
-                  
+                    <p className="mt-1 text-sm text-slate-500">{members.length} miembros</p>
+                  </div>
                 </div>
-                {info.customKit?.clubColors && (
-                  <motion.div 
-                    className="flex gap-3"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring" }}
-                  >
-                    {info.customKit.clubColors.map((color, i) => (
-                      <motion.div
-                        key={i}
-                        whileHover={{ scale: 1.1, rotate: 360 }}
-                        transition={{ duration: 0.3 }}
-                        className="w-16 h-16 rounded-full border-4 border-white/30 shadow-2xl"
-                        style={{ backgroundColor: color }}
+                <div className="flex flex-wrap items-center gap-6 lg:justify-end">
+                  {currentDivisionCrest && currentDivisionLabel && (
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={currentDivisionCrest}
+                        alt={currentDivisionLabel}
+                        className="h-16 w-16 object-contain"
                       />
-                    ))}
-                  </motion.div>
+                      <div className="text-left">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                          División actual
+                        </p>
+                        <p className="text-2xl font-black tracking-tight text-slate-950">
+                          {currentDivisionLabel}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-left lg:text-right">
+                    <p className="text-5xl md:text-6xl font-black tracking-tight text-slate-950">
+                      {overall.skillRating ?? '—'}
+                    </p>
+                    <p className="text-sm font-medium text-slate-500">Valoración de habilidad</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">V {overall.wins}</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700">E {overall.ties}</span>
+                <span className="rounded-full bg-rose-50 px-3 py-1.5 text-sm font-semibold text-rose-700">D {overall.losses}</span>
+                <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700">{winRate} victorias</span>
+                {reputationName && overall.reputationTier != null && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-900">
+                    <img
+                      src={`https://media.contentapi.ea.com/content/dam/eacom/fc/pro-clubs/reputation-tier${overall.reputationTier}.png`}
+                      alt=""
+                      className="h-5 w-5 object-contain"
+                    />
+                    {reputationName}
+                  </span>
                 )}
               </div>
+
+              <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1">Defensas {roleCounts.def}</span>
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1">Medios {roleCounts.mid}</span>
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1">Delanteros {roleCounts.fwd}</span>
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1">Porteros {roleCounts.gk}</span>
+              </div>
             </CardHeader>
-            <CardContent className="relative z-10">
-              <motion.div 
-                className="grid grid-cols-2 gap-3 md:gap-6 md:grid-cols-4"
-                initial="hidden"
-                animate="show"
-                variants={{
-                  hidden: { opacity: 0 },
-                  show: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.1
-                    }
-                  }
-                }}
-              >
-                <motion.div
-                  variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                  className="text-center bg-slate-100 p-3 md:p-6 rounded-2xl border-2 border-slate-300 hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
-                >
-                  <p className="text-xs md:text-sm text-slate-600 mb-1 md:mb-2 font-black uppercase tracking-wider">División</p>
-                  {overall.division != null ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <img 
-                        src={`https://media.contentapi.ea.com/content/dam/eacom/fc/pro-clubs/divisioncrest${Number(overall.division) + 1}.png`}
-                        alt={`División ${overall.division}`}
-                        className="w-12 h-12 md:w-20 md:h-20 object-contain drop-shadow-lg"
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.classList.remove('hidden');
-                        }}
-                      />
-                      <p className="text-2xl md:text-3xl font-black text-slate-900 hidden">
-                        {overall.division}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-3xl md:text-5xl font-black text-slate-900">N/A</p>
-                  )}
-                </motion.div>
-                <motion.div
-                  variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                  className="text-center bg-slate-100 p-3 md:p-6 rounded-2xl border-2 border-slate-300 hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
-                >
-                  <p className="text-xs md:text-sm text-slate-600 mb-1 md:mb-2 font-black uppercase tracking-wider">Habilidad</p>
-                  <p className="text-3xl md:text-5xl font-black text-slate-900">
-                    {overall.skillRating || 'N/A'}
-                  </p>
-                </motion.div>
-                <motion.div
-                  variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                  className="text-center bg-slate-100 p-3 md:p-6 rounded-2xl border-2 border-slate-300 hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
-                >
-                  <p className="text-xs md:text-sm text-slate-600 mb-1 md:mb-2 font-black uppercase tracking-wider">Récord</p>
-                  <p className="text-2xl md:text-4xl font-black text-slate-900">
-                    {overall.wins}-{overall.losses}-{overall.ties}
-                  </p>
-                </motion.div>
-                <motion.div
-                  variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                  className="text-center bg-slate-100 p-3 md:p-6 rounded-2xl border-2 border-slate-300 hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
-                >
-                  <p className="text-xs md:text-sm text-slate-600 mb-1 md:mb-2 font-black uppercase tracking-wider">% Victorias</p>
-                  <p className="text-3xl md:text-5xl font-black text-slate-900">{winRate}</p>
-                </motion.div>
-              </motion.div>
+            <CardContent className="relative z-10 px-5 pb-6 md:px-8">
+              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Logros en playoff
+                </p>
+                {achievements.length === 0 ? (
+                  <div className="mt-4 flex flex-col items-center gap-3 py-2 text-center">
+                    <img
+                      src={defaultDivisionCrest}
+                      alt="Sin división de temporada"
+                      className="h-28 w-28 object-contain"
+                    />
+                    <p className="text-base font-semibold text-slate-800">
+                      Ninguna temporada completada
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {achievements.map((achievement) => (
+                      <div
+                        key={`${achievement.seasonName}-${achievement.divisionLabel}`}
+                        className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm"
+                      >
+                        <img
+                          src={achievement.crestUrl}
+                          alt={achievement.divisionLabel}
+                          className="h-20 w-20 object-contain"
+                        />
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            {achievement.seasonName}
+                          </p>
+                          <p className="text-xl font-black text-slate-950">
+                            {achievement.divisionLabel}
+                          </p>
+                          <p className="text-sm text-slate-600">{achievement.finishLabel}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -310,19 +330,18 @@ export function ClubPage({ platform, clubId }: ClubPageProps) {
           transition={{ delay: 0.2 }}
         >
           <Tabs defaultValue="overview" className="space-y-4 md:space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="overview" className="text-xs md:text-sm">
-                <Star className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">Resumen</span>
+            <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm sm:grid-cols-4">
+              <TabsTrigger value="overview" className="rounded-xl text-xs normal-case tracking-normal md:text-sm">
+                Resumen
               </TabsTrigger>
-              <TabsTrigger value="players" className="text-xs md:text-sm">
-                <Users className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">Jugadores ({members.length})</span>
-                <span className="md:hidden">({members.length})</span>
+              <TabsTrigger value="ranking" className="rounded-xl text-xs normal-case tracking-normal md:text-sm">
+                Ranking
               </TabsTrigger>
-              <TabsTrigger value="matches" className="text-xs md:text-sm">
-                <TrendingUp className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">Partidos</span>
+              <TabsTrigger value="players" className="rounded-xl text-xs normal-case tracking-normal md:text-sm">
+                Jugadores
+              </TabsTrigger>
+              <TabsTrigger value="matches" className="rounded-xl text-xs normal-case tracking-normal md:text-sm">
+                Partidos
               </TabsTrigger>
             </TabsList>
 
@@ -330,296 +349,109 @@ export function ClubPage({ platform, clubId }: ClubPageProps) {
             {/* Información del Estadio */}
             {info.customKit && (info.customKit as any).stadName && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
+                className="overflow-hidden rounded-3xl bg-slate-950 text-white shadow-[0_18px_50px_-28px_rgba(15,23,42,0.7)]"
               >
-                <Card className="shadow-lg border-2 border-slate-200 bg-gradient-to-br from-green-50 to-emerald-100 hover:shadow-xl transition-all">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-600 pointer-events-none"></div>
-                  <CardHeader className="relative z-10">
-                    <CardTitle className="text-base md:text-xl text-slate-900 font-black flex items-center gap-2 uppercase tracking-wide">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      🏟️ Estadio Local
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-2xl md:text-4xl font-black text-slate-900 mb-1">
-                          {(info.customKit as any).stadName}
-                        </p>
-                        <p className="text-xs md:text-sm text-slate-600 font-semibold uppercase tracking-wide">
-                          Sede oficial del club
-                        </p>
-                      </div>
-                      <div className="text-4xl md:text-7xl opacity-10">
-                        🏟️
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-300">
+                      Sede del club
+                    </p>
+                    <p className="mt-2 break-words text-3xl font-black tracking-tight">
+                      {(info.customKit as any).stadName}
+                    </p>
+                  </div>
+                  <p className="text-sm text-slate-300">Estadio local de {info.name}</p>
+                </div>
               </motion.div>
             )}
 
-            <motion.div 
-              className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-              initial="hidden"
-              animate="show"
-              variants={{
-                hidden: { opacity: 0 },
-                show: {
-                  opacity: 1,
-                  transition: {
-                    staggerChildren: 0.1
-                  }
-                }
-              }}
-            >
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
-                <Card className="shadow-lg border-2 border-slate-200 bg-white hover:shadow-xl transition-all group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-slate-300 pointer-events-none"></div>
-                  <CardHeader className="relative z-10">
-                    <CardTitle className="text-xl text-slate-900 font-black flex items-center gap-2 uppercase tracking-wide">
-                      <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
-                      Estadísticas Generales
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 relative z-10">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">
-                        Partidos Jugados:
-                      </span>
-                      <span className="font-black text-2xl text-slate-900">
-                        {formatNumber(overall.gamesPlayed)}
-                      </span>
-                    </div>
-                    <Separator className="bg-slate-200" />
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">Victorias:</span>
-                      <span className="font-black text-2xl text-slate-900">
-                        {formatNumber(overall.wins)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">Derrotas:</span>
-                      <span className="font-black text-2xl text-slate-900">
-                        {formatNumber(overall.losses)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">Empates:</span>
-                      <span className="font-black text-2xl text-slate-900">
-                        {formatNumber(overall.ties)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
-                <Card className="shadow-lg border-2 border-slate-200 bg-white hover:shadow-xl transition-all group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-slate-300 pointer-events-none"></div>
-                  <CardHeader className="relative z-10">
-                    <CardTitle className="text-xl text-slate-900 font-black flex items-center gap-2 uppercase tracking-wide">
-                      <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
-                      Estadísticas de Goles
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 relative z-10">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">Goles a Favor:</span>
-                      <span className="font-black text-2xl text-slate-900">
-                        {formatNumber(overall.goalsFor)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">
-                        Goles en Contra:
-                      </span>
-                      <span className="font-black text-2xl text-slate-900">
-                        {formatNumber(overall.goalsAgainst)}
-                      </span>
-                    </div>
-                  <Separator className="bg-slate-200" />
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">
-                      Diferencia de Goles:
-                    </span>
-                    <span className="font-black text-xl text-slate-900">
-                      {overall.goalsFor - overall.goalsAgainst > 0 ? '+' : ''}
-                      {formatNumber(overall.goalsFor - overall.goalsAgainst)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">
-                      Promedio Goles/PJ:
-                    </span>
-                    <span className="font-black text-xl text-slate-900">
-                      {(overall.goalsFor / overall.gamesPlayed).toFixed(2)}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-              </motion.div>
-
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
-                <Card className="shadow-lg border-2 border-slate-200 bg-white hover:shadow-xl transition-all group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-slate-300 pointer-events-none"></div>
-                  <CardHeader className="relative z-10">
-                    <CardTitle className="text-xl text-slate-900 font-black flex items-center gap-2 uppercase tracking-wide">
-                      <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
-                      Información del Club
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 relative z-10">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">Miembros:</span>
-                      <span className="font-black text-2xl text-slate-900">
-                        {info.memberCount || members.length}
-                      </span>
-                    </div>
-                  <Separator className="bg-slate-200" />
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">Títulos Ganados:</span>
-                    <span className="font-black text-xl text-slate-900">
-                      {formatNumber(overall.titlesWon)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-slate-600 font-bold uppercase text-sm tracking-wide">Temporadas:</span>
-                    <span className="font-black text-2xl text-slate-900">
-                      {formatNumber(overall.seasons)}
-                    </span>
-                  </div>
-                </CardContent>
-                </Card>
-              </motion.div>
-            </motion.div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { label: 'Partidos', value: formatNumber(overall.gamesPlayed) },
+                { label: 'Victorias', value: formatNumber(overall.wins) },
+                { label: 'Empates', value: formatNumber(overall.ties) },
+                { label: 'Derrotas', value: formatNumber(overall.losses) },
+                { label: 'Goles a favor', value: formatNumber(overall.goalsFor) },
+                { label: 'Goles en contra', value: formatNumber(overall.goalsAgainst) },
+                {
+                  label: 'Diferencia',
+                  value: `${overall.goalsFor - overall.goalsAgainst > 0 ? '+' : ''}${formatNumber(overall.goalsFor - overall.goalsAgainst)}`,
+                },
+                {
+                  label: 'Goles por partido',
+                  value: overall.gamesPlayed ? (overall.goalsFor / overall.gamesPlayed).toFixed(2) : '0.00',
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.04 }}
+                  className="rounded-3xl border border-slate-200 bg-white px-5 py-4"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">{item.label}</p>
+                  <p className="mt-1 text-3xl font-black tracking-tight text-slate-950">{item.value}</p>
+                </motion.div>
+              ))}
+            </div>
 
             {recentResults && recentResults.length > 0 && (
-              <Card className="shadow-lg border-2 border-slate-200 bg-white">
-                <div className="absolute top-0 left-0 w-full h-1 bg-slate-300 pointer-events-none"></div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-xl text-slate-900 font-black flex items-center gap-2 uppercase tracking-wide">
-                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
-                    Racha Reciente
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="flex gap-2 flex-wrap">
-                    {recentResults.map((result, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ delay: i * 0.05, type: "spring" }}
-                        className={`w-12 h-12 rounded-lg flex items-center justify-center font-bold text-lg shadow-md transition-all hover:scale-110 ${
-                          result === 'W' 
-                            ? 'bg-green-600 text-white hover:bg-green-700' 
-                            : result === 'L' 
-                            ? 'bg-red-600 text-white hover:bg-red-700' 
-                            : 'bg-slate-400 text-white hover:bg-slate-500'
-                        }`}
-                        title={
-                          result === 'W' 
-                            ? 'Victoria' 
-                            : result === 'L' 
-                            ? 'Derrota' 
-                            : 'Empate'
-                        }
-                      >
-                        {result}
-                      </motion.div>
-                    ))}
-                  </div>
-                  <p className="text-sm text-slate-600 mt-3 font-semibold">
-                    Los últimos {recentResults.length} partidos (más reciente a la izquierda)
-                  </p>
-                  <div className="mt-4 pt-4 border-t-2 border-slate-200">
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <p className="text-2xl font-black text-green-600">{recentResults.filter(r => r === 'W').length}</p>
-                        <p className="text-xs text-slate-600 font-bold uppercase">Victorias</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-black text-slate-400">{recentResults.filter(r => r === 'D').length}</p>
-                        <p className="text-xs text-slate-600 font-bold uppercase">Empates</p>
-                      </div>
-                      <div>
-                        <p className="text-2xl font-black text-red-600">{recentResults.filter(r => r === 'L').length}</p>
-                        <p className="text-xs text-slate-600 font-bold uppercase">Derrotas</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="rounded-3xl border border-slate-200 bg-white p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  Últimos {recentResults.length} partidos
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {recentResults.map((result, i) => (
+                    <span
+                      key={i}
+                      className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white ${
+                        result === 'W'
+                          ? 'bg-emerald-600'
+                          : result === 'L'
+                          ? 'bg-rose-600'
+                          : 'bg-slate-400'
+                      }`}
+                    >
+                      {result === 'W' ? 'V' : result === 'L' ? 'D' : 'E'}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
 
-            {/* Top Players Section */}
             {members.length > 0 && (
-              <Card className="shadow-lg border-2 border-slate-200 bg-white">
-                <div className="absolute top-0 left-0 w-full h-1 bg-slate-300 pointer-events-none"></div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-xl text-slate-900 font-black flex items-center gap-2 uppercase tracking-wide">
-                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
-                    Jugadores Destacados
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div className="p-4 bg-slate-50 rounded-lg border-2 border-slate-200 shadow-md">
-                      <p className="text-sm font-black text-slate-700 mb-2 uppercase tracking-wider">
-                        🏆 Máximo Goleador
-                      </p>
-                      {(() => {
-                        const topScorer = members.reduce((prev, current) => 
-                          (current.goals > prev.goals) ? current : prev
-                        );
-                        return (
-                          <>
-                            <p className="font-black text-lg text-slate-900">{topScorer.proName || topScorer.name}</p>
-                            <p className="text-2xl font-black text-slate-900">{topScorer.goals} goles</p>
-                          </>
-                        );
-                      })()}
-                    </div>
-                    
-                    <div className="p-4 bg-slate-50 rounded-lg border-2 border-slate-200 shadow-md">
-                      <p className="text-sm font-black text-slate-700 mb-2 uppercase tracking-wider">
-                        🎯 Máximo Asistente
-                      </p>
-                      {(() => {
-                        const topAssist = members.reduce((prev, current) => 
-                          (current.assists > prev.assists) ? current : prev
-                        );
-                        return (
-                          <>
-                            <p className="font-black text-lg text-slate-900">{topAssist.proName || topAssist.name}</p>
-                            <p className="text-2xl font-black text-slate-900">{topAssist.assists} asistencias</p>
-                          </>
-                        );
-                      })()}
-                    </div>
-                    
-                    <div className="p-4 bg-slate-50 rounded-lg border-2 border-slate-200 shadow-md">
-                      <p className="text-sm font-black text-slate-700 mb-2 uppercase tracking-wider">
-                        ⭐ Mejor Valoración
-                      </p>
-                      {(() => {
-                        const topRating = members.reduce((prev, current) => 
-                          (current.averageRating > prev.averageRating) ? current : prev
-                        );
-                        return (
-                          <>
-                            <p className="font-black text-lg text-slate-900">{topRating.proName || topRating.name}</p>
-                            <p className="text-2xl font-black text-slate-900">{topRating.averageRating.toFixed(1)}</p>
-                          </>
-                        );
-                      })()}
-                    </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                {[
+                  {
+                    label: 'Máximo goleador',
+                    player: members.reduce((prev, current) => (current.goals > prev.goals ? current : prev)),
+                    stat: (player: typeof members[number]) => `${player.goals} goles`,
+                  },
+                  {
+                    label: 'Máximo asistente',
+                    player: members.reduce((prev, current) => (current.assists > prev.assists ? current : prev)),
+                    stat: (player: typeof members[number]) => `${player.assists} asistencias`,
+                  },
+                  {
+                    label: 'Más pases',
+                    player: members.reduce((prev, current) => ((current.passesMade || 0) > (prev.passesMade || 0) ? current : prev)),
+                    stat: (player: typeof members[number]) => `${player.passesMade || 0} pases`,
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-3xl border border-slate-200 bg-white p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">{item.label}</p>
+                    <p className="mt-2 text-lg font-bold text-slate-950">{item.player.name}</p>
+                    <p className="text-2xl font-black text-slate-950">{item.stat(item.player)}</p>
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+              </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="ranking">
+            <PlayerRankings members={members} isLoading={loadingMembers} />
           </TabsContent>
 
           <TabsContent value="players">

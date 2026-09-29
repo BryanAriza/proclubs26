@@ -21,14 +21,33 @@ const formatDate = (timestamp) => {
     });
 };
 exports.formatDate = formatDate;
+const regionNames = {
+    4344147: 'Islas Británicas',
+    4539733: 'Europa del Este',
+    5129557: 'Europa del Norte',
+    5457237: 'Europa del Sur',
+    4543827: 'Costa Este de EE. UU.',
+    5723475: 'Costa Oeste de EE. UU.',
+    5719381: 'Europa Occidental',
+    5456205: 'América del Sur',
+    4407629: 'América Central',
+    4281153: 'Asia',
+    4281683: 'Australia y Nueva Zelanda',
+};
+const getRegionName = (regionId) => {
+    if (!regionId)
+        return 'Desconocida';
+    return regionNames[regionId] || `Región ${regionId}`;
+};
+exports.getRegionName = getRegionName;
 const platformLabel = (platform) => {
     switch (platform) {
         case 'common-gen5':
-            return 'Current Gen';
+            return 'Cross-Play';
         case 'common-gen4':
             return 'Last Gen';
         case 'nx':
-            return 'Switch';
+            return 'Switch 2';
         default:
             return platform;
     }

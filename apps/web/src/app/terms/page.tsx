@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Términos y Condiciones | ProClubs Stats',
-  description: 'Términos y condiciones de uso de ProClubs Stats, plataforma de estadísticas de EA SPORTS FC 26 Pro Clubs.',
+  description: 'Términos y condiciones de uso de ProClubs Stats, plataforma de estadísticas de EA SPORTS FC 27 Pro Clubs.',
 };
 
 export default function TermsPage() {
@@ -42,11 +42,11 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-slate-800">2. Descripción del Servicio</h2>
               <p className="mb-4 leading-relaxed">
-                ProClubs Stats proporciona estadísticas y datos relacionados con EA SPORTS FC 26 Pro Clubs, 
+                ProClubs Stats proporciona estadísticas y datos relacionados con EA SPORTS FC 27 Pro Clubs, 
                 obtenidos a través de la API pública de Electronic Arts. El Servicio permite a los usuarios:
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li>Buscar clubes de Pro Clubs en diferentes plataformas (PlayStation, Xbox, Nintendo Switch)</li>
+                <li>Buscar clubes de Clubs en PlayStation 5, Xbox Series X|S, PC y Nintendo Switch 2</li>
                 <li>Visualizar estadísticas públicas de clubes y jugadores</li>
                 <li>Consultar historiales de partidos y rendimiento</li>
                 <li>Acceder a análisis de datos de rendimiento de equipos</li>
@@ -116,7 +116,7 @@ export default function TermsPage() {
                 propiedad intelectual aplicables.
               </p>
               <p className="mb-4 leading-relaxed">
-                <strong>EA SPORTS FC 26</strong>, <strong>Pro Clubs</strong>, y todos los logos, nombres, 
+                <strong>EA SPORTS FC 27</strong>, <strong>Pro Clubs</strong>, y todos los logos, nombres, 
                 marcas comerciales y marcas de servicio relacionadas son propiedad exclusiva de 
                 <strong> Electronic Arts Inc.</strong> y sus licenciantes. El uso de estas marcas no 
                 implica respaldo ni afiliación con Electronic Arts.

@@ -72,7 +72,7 @@ export class ClubsController {
   @ApiQuery({ name: 'platform', enum: ['common-gen5', 'common-gen4', 'nx'] })
   @ApiQuery({
     name: 'type',
-    enum: ['league', 'playoff', 'friendly'],
+    enum: ['league', 'playoff', 'friendly', 'tournament'],
     required: false,
   })
   async getClubMatches(
